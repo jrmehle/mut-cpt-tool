@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUT Tool</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏈</text></svg>">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+<style>
+  body {
+    background:
+      linear-gradient(rgba(30, 20, 50, 0.85), rgba(10, 10, 20, 0.9)),
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23166B37" width="1200" height="800"/><g opacity="0.3"><line x1="0" y1="100" x2="1200" y2="100" stroke="%23fff" stroke-width="2"/><line x1="0" y1="200" x2="1200" y2="200" stroke="%23fff" stroke-width="2"/><line x1="0" y1="300" x2="1200" y2="300" stroke="%23fff" stroke-width="2"/><line x1="0" y1="400" x2="1200" y2="400" stroke="%23fff" stroke-width="4"/><line x1="0" y1="500" x2="1200" y2="500" stroke="%23fff" stroke-width="2"/><line x1="0" y1="600" x2="1200" y2="600" stroke="%23fff" stroke-width="2"/><line x1="0" y1="700" x2="1200" y2="700" stroke="%23fff" stroke-width="2"/></g><g opacity="0.2"><rect x="0" y="0" width="60" height="800" fill="%23fff"/><rect x="1140" y="0" width="60" height="800" fill="%23fff"/></g></svg>');
+    background-size: cover;
+    background-attachment: fixed;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 1.5rem;
+    min-height: 100vh;
+    transition: background 0.5s ease;
+  }
+
+  .team-selector {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+  }
+
+  .team-selector select {
+    background-color: rgba(20, 20, 30, 0.95);
+    color: #fff;
+    border: 2px solid var(--team-primary);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .team-selector select:hover {
+    border-color: var(--team-secondary);
+    box-shadow: 0 0 10px var(--team-primary);
+  }
+
+  :root {
+    --team-primary: #4F2683;
+    --team-secondary: #FFC62F;
+  }
+
+  .header-section {
+    background: rgba(var(--team-primary-rgb), 0.4);
+    border: 2px solid var(--team-primary);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  .control-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: end;
+    flex-wrap: wrap;
+  }
+
+  .player-card {
+    background: linear-gradient(135deg, rgba(var(--team-primary-rgb), 0.3) 0%, rgba(20, 20, 30, 0.98) 100%);
+    border: 2px solid rgba(var(--team-primary-rgb), 0.5);
+    border-radius: 8px;
+    padding: 0.6rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+  }
+
+  .player-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--team-primary), var(--team-secondary));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .player-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--team-secondary);
+    box-shadow: 0 6px 20px rgba(var(--team-secondary-rgb), 0.3);
+  }
+
+  .player-card:hover::before {
+    opacity: 1;
+  }
+
+  .player-card.dim {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .player-card.best-value {
+    border: 2px solid var(--team-secondary);
+    background: linear-gradient(135deg, rgba(var(--team-secondary-rgb), 0.15) 0%, rgba(20, 20, 30, 0.95) 100%);
+    box-shadow: 0 6px 24px rgba(var(--team-secondary-rgb), 0.4);
+  }
+
+  .player-card.best-value::before {
+    background: linear-gradient(90deg, var(--team-secondary), var(--team-accent, var(--team-secondary)));
+    opacity: 1;
+  }
+
+  .player-card.best-value .ovr-badge {
+    background: linear-gradient(135deg, var(--team-secondary), var(--team-accent, var(--team-secondary)));
+    color: var(--team-primary);
+    box-shadow: 0 0 15px rgba(var(--team-secondary-rgb), 0.6);
+  }
+
+  .ovr-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--team-primary), var(--team-primary-light, var(--team-primary)));
+    color: var(--team-secondary);
+    font-size: 1.4rem;
+    font-weight: 900;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    letter-spacing: 1px;
+    min-width: 55px;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(var(--team-primary-rgb), 0.5);
+    border: 2px solid rgba(var(--team-secondary-rgb), 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+  }
+
+  .stat-item {
+    background: rgba(var(--team-primary-rgb), 0.2);
+    border: 1px solid rgba(var(--team-primary-rgb), 0.4);
+    border-radius: 6px;
+    padding: 0.35rem 0.4rem;
+    transition: all 0.3s ease;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.15rem;
+    line-height: 1;
+  }
+
+  .stat-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--team-secondary);
+    line-height: 1.2;
+  }
+
+  .stat-value.highlight {
+    color: var(--team-accent, var(--team-secondary));
+    font-size: 0.9rem;
+  }
+
+  .input-field {
+    background-color: rgba(20, 20, 30, 0.8);
+    color: #e8e8e8;
+    border: 2px solid var(--team-primary);
+    border-radius: 6px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+  }
+
+  .input-field:focus {
+    background-color: rgba(30, 30, 40, 0.9);
+    color: #fff;
+    border-color: var(--team-secondary);
+    box-shadow: 0 0 0 0.15rem rgba(var(--team-secondary-rgb), 0.25);
+    outline: none;
+  }
+
+  .form-label {
+    color: #c0c0c0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .nav-link {
+    background-color: var(--team-primary) !important;
+    color: #b2b2b2;
+  }
+
+  .nav-link.active {
+    color: var(--team-primary-light) !important;
+    background-color: var(--team-secondary) !important;
+    border-color: var(--team-primary-light, var(--team-primary)) !important;
+    transition: all 0.3s ease;
+  }
+
+  .nav-link:hover {
+    color: #FFF;
+  }
+
+  .best-value-banner {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: linear-gradient(135deg, var(--team-secondary), var(--team-accent, var(--team-secondary)));
+    color: var(--team-primary);
+    padding: 0.4rem 0.6rem;
+    font-weight: 800;
+    font-size: 0.6rem;
+    display: none;
+    z-index: 10;
+    box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.4);
+    text-shadow: 1px 1px 2px rgba(128, 0, 0, 1);
+    letter-spacing: 0.5px;
+    transform: rotate(0deg);
+    border-bottom-left-radius: 6px;
+    border-top-right-radius: 6px;
+  }
+
+  .player-card.best-value .best-value-banner {
+    display: block;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #666;
+  }
+
+  .empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .training-value {
+    font-size: 0.7rem;
+    color: #999;
+    margin-top: 0.15rem;
+    line-height: 1.2;
+  }
+
+  .platinum-qs {
+    font-size: 0.65rem;
+    color: #888;
+    font-style: italic;
+    line-height: 1.2;
+  }
+</style>
+</head>
+<body>
+  <div class="team-selector">
+    <select id="teamSelect" class="form-select">
+      <option value="">Select Team Color Theme</option>
+      <option value="vikings">Minnesota Vikings</option>
+      <option value="packers">Green Bay Packers</option>
+      <option value="bears">Chicago Bears</option>
+      <option value="lions">Detroit Lions</option>
+      <option value="cowboys">Dallas Cowboys</option>
+      <option value="eagles">Philadelphia Eagles</option>
+      <option value="giants">New York Giants</option>
+      <option value="commanders">Washington Commanders</option>
+      <option value="49ers">San Francisco 49ers</option>
+      <option value="seahawks">Seattle Seahawks</option>
+      <option value="rams">Los Angeles Rams</option>
+      <option value="cardinals">Arizona Cardinals</option>
+      <option value="buccaneers">Tampa Bay Buccaneers</option>
+      <option value="saints">New Orleans Saints</option>
+      <option value="panthers">Carolina Panthers</option>
+      <option value="falcons">Atlanta Falcons</option>
+      <option value="chiefs">Kansas City Chiefs</option>
+      <option value="raiders">Las Vegas Raiders</option>
+      <option value="chargers">Los Angeles Chargers</option>
+      <option value="broncos">Denver Broncos</option>
+      <option value="bills">Buffalo Bills</option>
+      <option value="dolphins">Miami Dolphins</option>
+      <option value="patriots">New England Patriots</option>
+      <option value="jets">New York Jets</option>
+      <option value="steelers">Pittsburgh Steelers</option>
+      <option value="ravens">Baltimore Ravens</option>
+      <option value="browns">Cleveland Browns</option>
+      <option value="bengals">Cincinnati Bengals</option>
+      <option value="colts">Indianapolis Colts</option>
+      <option value="texans">Houston Texans</option>
+      <option value="titans">Tennessee Titans</option>
+      <option value="jaguars">Jacksonville Jaguars</option>
+    </select>
+  </div>
+
+  <div class="container">
+    <h2 class="mb-4">🏈 MUT Tools</h2>
+
+    <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="training-tab" data-bs-toggle="tab"
+                data-bs-target="#trainingPane" type="button" role="tab">
+          Coin / Training
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="promo-tab" data-bs-toggle="tab"
+                data-bs-target="#promoPane" type="button" role="tab">
+          Current Promo
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="mainTabsContent">
+
+      <!-- TRAINING TAB -->
+      <div class="tab-pane fade show active" id="trainingPane" role="tabpanel">
+        <div class="header-section">
+          <div class="control-group">
+            <div>
+              <label for="currentCPT" class="form-label">Coin/Training Rate</label>
+              <input id="currentCPT" type="text" class="form-control input-field"
+                     placeholder="e.g., 3.5" style="width: 90px;">
+            </div>
+            <div>
+              <label for="currentLTD" class="form-label">LTD OVR Threshold</label>
+              <input id="currentLTD" type="number" class="form-control input-field"
+                     placeholder="e.g., 90" style="width: 70px;">
+            </div>
+            <button id="resetBtn" class="btn btn-warning py-1">Reset All</button>
+          </div>
+        </div>
+
+        <div id="playerCards" class="cards-grid"></div>
+      </div>
+
+      <!-- PROMO TAB -->
+      <div class="tab-pane fade" id="promoPane" role="tabpanel">
+        <div class="header-section">
+          <div class="control-group">
+            <div>
+              <label for="promoCurrencyName" class="form-label">Promo Currency Name</label>
+              <input id="promoCurrencyName" type="text" class="form-control input-field"
+                     placeholder="e.g., Tokens" style="width: 150px;">
+            </div>
+            <button id="addPromoRow" class="btn btn-success py-1">Add OVR</button>
+            <button id="clearPromo" class="btn btn-warning py-1">Clear All</button>
+          </div>
+        </div>
+
+        <div id="promoCards" class="cards-grid"></div>
+        <div id="promoEmpty" class="empty-state" style="display: none;">
+          <div class="empty-state-icon">📦</div>
+          <p>No promo players yet. Click "Add OVR" to get started!</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  'use strict';
+
+  const STORAGE_KEYS = {
+    MUT_STATE: 'mutState',
+    PROMO_DATA: 'promoData',
+    PROMO_NAME: 'promoCurrencyName',
+    TEAM: 'selectedTeam'
+  };
+
+  const NFL_TEAMS = {
+    vikings: { primary: '#4F2683', secondary: '#FFC62F', accent: '#FFD700', name: 'Minnesota Vikings' },
+    packers: { primary: '#203731', secondary: '#FFB612', accent: '#FFD700', name: 'Green Bay Packers' },
+    bears: { primary: '#0B162A', secondary: '#C83803', accent: '#DD4814', name: 'Chicago Bears' },
+    lions: { primary: '#0076B6', secondary: '#B0B7BC', accent: '#FFFFFF', name: 'Detroit Lions' },
+    cowboys: { primary: '#041E42', secondary: '#869397', accent: '#FFFFFF', name: 'Dallas Cowboys' },
+    eagles: { primary: '#004C54', secondary: '#A5ACAF', accent: '#ACC0C6', name: 'Philadelphia Eagles' },
+    giants: { primary: '#0B2265', secondary: '#A71930', accent: '#A5ACAF', name: 'New York Giants' },
+    commanders: { primary: '#5A1414', secondary: '#FFB612', accent: '#FFD700', name: 'Washington Commanders' },
+    '49ers': { primary: '#AA0000', secondary: '#B3995D', accent: '#FFD700', name: 'San Francisco 49ers' },
+    seahawks: { primary: '#002244', secondary: '#69BE28', accent: '#A5ACAF', name: 'Seattle Seahawks' },
+    rams: { primary: '#003594', secondary: '#FFA300', accent: '#FFD700', name: 'Los Angeles Rams' },
+    cardinals: { primary: '#97233F', secondary: '#FFB612', accent: '#FFD700', name: 'Arizona Cardinals' },
+    buccaneers: { primary: '#D50A0A', secondary: '#FF7900', accent: '#34302B', name: 'Tampa Bay Buccaneers' },
+    saints: { primary: '#D3BC8D', secondary: '#101820', accent: '#9F8958', name: 'New Orleans Saints' },
+    panthers: { primary: '#101820', secondary: '#0085CA', accent: '#BFC0BF', name: 'Carolina Panthers' },
+    falcons: { primary: '#A71930', secondary: '#000000', accent: '#A5ACAF', name: 'Atlanta Falcons' },
+    chiefs: { primary: '#E31837', secondary: '#FFB81C', accent: '#FFD700', name: 'Kansas City Chiefs' },
+    raiders: { primary: '#000000', secondary: '#A5ACAF', accent: '#FFFFFF', name: 'Las Vegas Raiders' },
+    chargers: { primary: '#0080C6', secondary: '#FFC20E', accent: '#FFD700', name: 'Los Angeles Chargers' },
+    broncos: { primary: '#FB4F14', secondary: '#002244', accent: '#FFB612', name: 'Denver Broncos' },
+    bills: { primary: '#00338D', secondary: '#C60C30', accent: '#A5ACAF', name: 'Buffalo Bills' },
+    dolphins: { primary: '#008E97', secondary: '#FC4C02', accent: '#005778', name: 'Miami Dolphins' },
+    patriots: { primary: '#002244', secondary: '#C60C30', accent: '#B0B7BC', name: 'New England Patriots' },
+    jets: { primary: '#125740', secondary: '#FFFFFF', accent: '#000000', name: 'New York Jets' },
+    steelers: { primary: '#FFB612', secondary: '#101820', accent: '#003087', name: 'Pittsburgh Steelers' },
+    ravens: { primary: '#241773', secondary: '#9E7C0C', accent: '#000000', name: 'Baltimore Ravens' },
+    browns: { primary: '#311D00', secondary: '#FF3C00', accent: '#FFB612', name: 'Cleveland Browns' },
+    bengals: { primary: '#FB4F14', secondary: '#000000', accent: '#FFFFFF', name: 'Cincinnati Bengals' },
+    colts: { primary: '#002C5F', secondary: '#A2AAAD', accent: '#FFFFFF', name: 'Indianapolis Colts' },
+    texans: { primary: '#03202F', secondary: '#A71930', accent: '#FFFFFF', name: 'Houston Texans' },
+    titans: { primary: '#0C2340', secondary: '#4B92DB', accent: '#C8102E', name: 'Tennessee Titans' },
+    jaguars: { primary: '#006778', secondary: '#D7A22A', accent: '#9F792C', name: 'Jacksonville Jaguars' }
+  };
+
+  const TAX_RATE = 0.9;
+  const TAX_FLAT = 1000;
+
+  const PLAYER_DATA = [
+    { ovr: 80, training: 110, platinumQS: '14,000' },
+    { ovr: 81, training: 170, platinumQS: '23,000' },
+    { ovr: 82, training: 270, platinumQS: '36,000' },
+    { ovr: 83, training: 430, platinumQS: '57,000' },
+    { ovr: 84, training: 680, platinumQS: '90,000' },
+    { ovr: 85, training: 1080, platinumQS: '143,000' },
+    { ovr: 86, training: 1700, platinumQS: '225,000' },
+    { ovr: 87, training: 2700, platinumQS: '-' },
+    { ovr: 88, training: 4200, platinumQS: '-' },
+    { ovr: 89, training: 6700, platinumQS: '-' },
+    { ovr: 90, training: 10600, platinumQS: '-' },
+    { ovr: 91, training: 16700, platinumQS: '-' },
+    { ovr: 92, training: 26000, platinumQS: '-' },
+    { ovr: 93, training: 42000, platinumQS: '-' },
+    { ovr: 94, training: 66000, platinumQS: '-' },
+    { ovr: 95, training: 100000, platinumQS: '-' },
+    { ovr: 96, training: 160000, platinumQS: '-' },
+    { ovr: 97, training: 260000, platinumQS: '-' },
+    { ovr: 98, training: 410000, platinumQS: '-' },
+    { ovr: 99, training: 650000, platinumQS: '-' }
+  ];
+
+  const Utils = {
+    parseNumber(str) {
+      const cleaned = String(str).replace(/,/g, '');
+      const parsed = parseFloat(cleaned);
+      return isNaN(parsed) ? 0 : parsed;
+    },
+
+    formatNumber(num, decimals = 0) {
+      return num.toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    },
+
+    safeGetItem(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch (e) {
+        return null;
+      }
+    },
+
+    safeSetItem(key, value) {
+      try {
+        localStorage.setItem(key, value);
+      } catch (e) {
+        console.warn('localStorage unavailable');
+      }
+    },
+
+    safeClearStorage() {
+      try {
+        localStorage.clear();
+      } catch (e) {
+        console.warn('localStorage unavailable');
+      }
+    },
+
+    hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ?
+        `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` :
+        '79, 38, 131';
+    },
+
+    setTeamColors(teamKey) {
+      const team = NFL_TEAMS[teamKey];
+      if (!team) return;
+
+      const root = document.documentElement;
+      root.style.setProperty('--team-primary', team.primary);
+      root.style.setProperty('--team-secondary', team.secondary);
+      root.style.setProperty('--team-accent', team.accent);
+      root.style.setProperty('--team-primary-rgb', this.hexToRgb(team.primary));
+      root.style.setProperty('--team-secondary-rgb', this.hexToRgb(team.secondary));
+
+      // Lighter version of primary for gradients
+      const primaryRgb = this.hexToRgb(team.primary);
+      const [r, g, b] = primaryRgb.split(', ').map(n => Math.min(255, parseInt(n) + 40));
+      root.style.setProperty('--team-primary-light', `rgb(${r}, ${g}, ${b})`);
+
+      Utils.safeSetItem(STORAGE_KEYS.TEAM, teamKey);
+    }
+  };
+
+  const TrainingTab = (() => {
+    const elements = {
+      cptInput: document.getElementById('currentCPT'),
+      ltdInput: document.getElementById('currentLTD'),
+      resetBtn: document.getElementById('resetBtn'),
+      container: document.getElementById('playerCards')
+    };
+
+    let playerCards = [];
+
+    function init() {
+      new Cleave(elements.cptInput, {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand',
+        numeralDecimalMark: '.',
+        delimiter: ','
+      });
+
+      loadState();
+      renderCards();
+      setupEventListeners();
+    }
+
+    function setupEventListeners() {
+      elements.cptInput.addEventListener('input', handleUpdate);
+      elements.ltdInput.addEventListener('input', handleUpdate);
+      elements.resetBtn.addEventListener('click', handleReset);
+    }
+
+    function handleUpdate() {
+      recalculate();
+      saveState();
+    }
+
+    function handleReset() {
+      Utils.safeClearStorage();
+      elements.cptInput.value = '';
+      elements.ltdInput.value = '';
+      playerCards.forEach(card => {
+        card.input.value = '';
+      });
+      recalculate();
+    }
+
+    function renderCards() {
+      elements.container.innerHTML = '';
+
+      PLAYER_DATA.forEach(data => {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        card.dataset.ovr = data.ovr;
+
+        const platinumQSHtml = data.platinumQS !== '-'
+          ? `<div class="platinum-qs">Platinum QS: ${data.platinumQS}</div>`
+          : '';
+
+        card.innerHTML = `
+          <div class="best-value-banner" title="Best Value!">⭐</div>
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="ovr-badge">${data.ovr}</div>
+              <div class="training-value">${Utils.formatNumber(data.training)} TP</div>
+              ${platinumQSHtml}
+            </div>
+            <div style="flex: 1; max-width: 120px; margin-left: 0.5rem; margin-top: -0.6rem;">
+              <label class="form-label" style="font-size: 0.6rem; margin-bottom: 0.25rem;">Avg Price</label>
+              <input type="text" class="form-control input-field avg-price-input"
+                     placeholder="Price" style="font-size: 0.75rem; padding: 0.25rem 0.4rem;">
+            </div>
+          </div>
+          <div class="card-stats">
+            <div class="stat-item">
+              <div class="stat-label">C/T</div>
+              <div class="stat-value coin-per-training">-</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">@ Rate</div>
+              <div class="stat-value price-at-cpt">-</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Target</div>
+              <div class="stat-value target-price">-</div>
+            </div>
+          </div>
+        `;
+
+        const input = card.querySelector('.avg-price-input');
+        new Cleave(input, {
+          numeral: true,
+          numeralThousandsGroupStyle: 'thousand',
+          numeralDecimalMark: '.',
+          delimiter: ','
+        });
+
+        input.addEventListener('input', () => {
+          recalculate();
+          saveState();
+        });
+
+        elements.container.appendChild(card);
+        playerCards.push({
+          element: card,
+          input: input,
+          data: data,
+          coinPerTraining: card.querySelector('.coin-per-training'),
+          priceAtCpt: card.querySelector('.price-at-cpt'),
+          targetPrice: card.querySelector('.target-price')
+        });
+      });
+    }
+
+    function recalculate() {
+      const cpt = Utils.parseNumber(elements.cptInput.value);
+      const ltd = parseInt(elements.ltdInput.value) || 0;
+      let maxCPT = 0;
+      let bestCard = null;
+
+      playerCards.forEach(card => {
+        const avg = Utils.parseNumber(card.input.value);
+        const isDimmed = ltd > 0 && card.data.ovr >= ltd;
+
+        card.element.classList.toggle('dim', isDimmed);
+
+        if (!avg) {
+          card.coinPerTraining.textContent = '-';
+          card.priceAtCpt.textContent = '-';
+          card.targetPrice.textContent = '-';
+          card.element.classList.remove('best-value');
+          return;
+        }
+
+        const coinPerTraining = avg / card.data.training;
+        const priceAtCPT = card.data.training * cpt;
+        const targetPrice = (avg * TAX_RATE) - TAX_FLAT;
+
+        card.coinPerTraining.textContent = coinPerTraining.toFixed(1);
+        card.priceAtCpt.textContent = cpt ? Utils.formatNumber(Math.round(priceAtCPT)) : '-';
+        card.targetPrice.textContent = Utils.formatNumber(Math.round(targetPrice));
+
+        if (cpt && coinPerTraining > maxCPT && !isDimmed) {
+          maxCPT = coinPerTraining;
+          bestCard = card;
+        }
+      });
+
+      playerCards.forEach(card => {
+        card.element.classList.remove('best-value');
+        card.coinPerTraining.classList.remove('highlight');
+      });
+
+      if (bestCard) {
+        bestCard.element.classList.add('best-value');
+        bestCard.coinPerTraining.classList.add('highlight');
+      }
+    }
+
+    function saveState() {
+      const state = {
+        cpt: elements.cptInput.value,
+        ltd: elements.ltdInput.value,
+        avgs: playerCards.map(card => card.input.value)
+      };
+      Utils.safeSetItem(STORAGE_KEYS.MUT_STATE, JSON.stringify(state));
+    }
+
+    function loadState() {
+      const saved = Utils.safeGetItem(STORAGE_KEYS.MUT_STATE);
+      if (!saved) return;
+
+      try {
+        const state = JSON.parse(saved);
+        if (state.cpt) elements.cptInput.value = state.cpt;
+        if (state.ltd) elements.ltdInput.value = state.ltd;
+        if (state.avgs?.length) {
+          setTimeout(() => {
+            playerCards.forEach((card, i) => {
+              if (state.avgs[i]) card.input.value = state.avgs[i];
+            });
+            recalculate();
+          }, 0);
+        }
+      } catch (e) {
+        console.error('Failed to load state:', e);
+      }
+    }
+
+    return { init };
+  })();
+
+  const PromoTab = (() => {
+    const elements = {
+      nameInput: document.getElementById('promoCurrencyName'),
+      container: document.getElementById('promoCards'),
+      emptyState: document.getElementById('promoEmpty'),
+      addBtn: document.getElementById('addPromoRow'),
+      clearBtn: document.getElementById('clearPromo')
+    };
+
+    let promoCards = [];
+    let currencyName = '';
+
+    function init() {
+      loadData();
+      setupEventListeners();
+      updateEmptyState();
+    }
+
+    function setupEventListeners() {
+      elements.nameInput.addEventListener('input', handleNameChange);
+      elements.addBtn.addEventListener('click', () => addCard());
+      elements.clearBtn.addEventListener('click', handleClear);
+    }
+
+    function handleNameChange() {
+      currencyName = elements.nameInput.value.trim();
+      Utils.safeSetItem(STORAGE_KEYS.PROMO_NAME, currencyName);
+      // Update labels in existing cards
+      promoCards.forEach(cardObj => {
+        const label = cardObj.card.querySelector('.currency-qs-label');
+        if (label) {
+          label.textContent = `${currencyName || 'Currency'} QS`;
+        }
+      });
+    }
+
+    function handleClear() {
+      if (!confirm('Clear all promo data?')) return;
+      promoCards = [];
+      elements.container.innerHTML = '';
+      saveData();
+      updateEmptyState();
+    }
+
+    function loadData() {
+      const savedData = Utils.safeGetItem(STORAGE_KEYS.PROMO_DATA);
+      const savedName = Utils.safeGetItem(STORAGE_KEYS.PROMO_NAME);
+
+      if (savedData) {
+        try {
+          const data = JSON.parse(savedData);
+          data.forEach(item => addCard(item));
+        } catch (e) {
+          console.error('Failed to parse promo data:', e);
+        }
+      }
+
+      if (savedName) {
+        currencyName = savedName;
+        elements.nameInput.value = currencyName;
+      }
+    }
+
+    function addCard(existingData = null) {
+      const card = document.createElement('div');
+      card.className = 'player-card';
+
+      const displayName = currencyName || 'Currency';
+
+      card.innerHTML = `
+        <div class="best-value-banner">⭐</div>
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="ovr-badge">
+              <input type="number" class="promo-ovr-input" placeholder="OVR"
+                     style="background: transparent; border: none; color: inherit; width: 55px; text-align: center; font-size: 1.4rem; font-weight: 900; padding: 0;">
+            </div>
+            <div class="training-value" style="margin-top: 0.25rem;">
+              <input type="text" class="form-control input-field promo-qs-input"
+                     placeholder="QS Value" style="font-size: 0.7rem; padding: 0.25rem 0.4rem; width: 90px;">
+            </div>
+            <div class="platinum-qs currency-qs-label">${displayName} QS</div>
+          </div>
+          <div class="flex align-items-start" style="max-width: 120px; margin-left: 0.5rem; margin-top: -0.6rem;">
+            <label class="form-label" style="font-size: 0.6rem; margin-bottom: 0.25rem;">Avg Price</label>
+            <input type="text" class="form-control input-field promo-avg-input"
+                   placeholder="Price" style="font-size: 0.75rem; padding: 0.25rem 0.4rem;">
+            <button class="btn btn-danger btn-sm mt-2 delete-promo" style="font-size: 0.65rem; padding: 0.2rem 0.5rem; width: 100%;">Remove</button>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-item">
+            <div class="stat-label">After Tax</div>
+            <div class="stat-value promo-coin-after">-</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">C/Unit</div>
+            <div class="stat-value promo-cpc">-</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Target</div>
+            <div class="stat-value promo-target">-</div>
+          </div>
+        </div>
+      `;
+
+      elements.container.appendChild(card);
+
+      const inputs = {
+        ovr: card.querySelector('.promo-ovr-input'),
+        qs: card.querySelector('.promo-qs-input'),
+        avg: card.querySelector('.promo-avg-input')
+      };
+
+      new Cleave(inputs.qs, {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand',
+        numeralDecimalMark: '.',
+        delimiter: ','
+      });
+
+      new Cleave(inputs.avg, {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand',
+        numeralDecimalMark: '.',
+        delimiter: ','
+      });
+
+      if (existingData) {
+        inputs.ovr.value = existingData.ovr;
+        inputs.qs.value = existingData.qs;
+        inputs.avg.value = existingData.avg;
+      }
+
+      const cardObj = {
+        card: card,
+        inputs: inputs,
+        coinAfter: card.querySelector('.promo-coin-after'),
+        cpc: card.querySelector('.promo-cpc'),
+        target: card.querySelector('.promo-target')
+      };
+
+      [inputs.ovr, inputs.qs, inputs.avg].forEach(input => {
+        input.addEventListener('input', () => {
+          recalculateAll();
+          saveData();
+        });
+      });
+
+      card.querySelector('.delete-promo').addEventListener('click', () => {
+        card.remove();
+        promoCards = promoCards.filter(c => c !== cardObj);
+        recalculateAll();
+        saveData();
+        updateEmptyState();
+      });
+
+      promoCards.push(cardObj);
+      recalculateAll();
+      updateEmptyState();
+    }
+
+    function recalculateAll() {
+      let maxCPC = 0;
+      let bestCard = null;
+
+      promoCards.forEach(cardObj => {
+        const qs = Utils.parseNumber(cardObj.inputs.qs.value);
+        const avg = Utils.parseNumber(cardObj.inputs.avg.value);
+
+        if (!avg) {
+          cardObj.coinAfter.textContent = '-';
+          cardObj.cpc.textContent = '-';
+          cardObj.target.textContent = '-';
+          cardObj.card.classList.remove('best-value');
+          return;
+        }
+
+        const coinAfterTax = avg * TAX_RATE;
+        const coinPerCurrency = qs ? (avg / qs) : 0;
+        const targetPrice = coinAfterTax - TAX_FLAT;
+
+        cardObj.coinAfter.textContent = Utils.formatNumber(Math.round(coinAfterTax));
+        cardObj.cpc.textContent = coinPerCurrency ? coinPerCurrency.toFixed(2) : '-';
+        cardObj.target.textContent = Utils.formatNumber(Math.round(targetPrice));
+
+        if (qs && coinPerCurrency > maxCPC) {
+          maxCPC = coinPerCurrency;
+          bestCard = cardObj;
+        }
+      });
+
+      // Remove all highlights
+      promoCards.forEach(cardObj => {
+        cardObj.card.classList.remove('best-value');
+        cardObj.cpc.classList.remove('highlight');
+      });
+
+      // Highlight best value
+      if (bestCard) {
+        bestCard.card.classList.add('best-value');
+        bestCard.cpc.classList.add('highlight');
+      }
+    }
+
+    function saveData() {
+      const data = promoCards.map(cardObj => ({
+        ovr: cardObj.inputs.ovr.value,
+        qs: cardObj.inputs.qs.value,
+        avg: cardObj.inputs.avg.value
+      }));
+      Utils.safeSetItem(STORAGE_KEYS.PROMO_DATA, JSON.stringify(data));
+    }
+
+    function updateEmptyState() {
+      elements.emptyState.style.display = promoCards.length === 0 ? 'block' : 'none';
+    }
+
+    return { init };
+  })();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Load saved team or default to Vikings
+    const savedTeam = Utils.safeGetItem(STORAGE_KEYS.TEAM) || 'vikings';
+    const teamSelect = document.getElementById('teamSelect');
+    teamSelect.value = savedTeam;
+    Utils.setTeamColors(savedTeam);
+
+    // Team selector change handler
+    teamSelect.addEventListener('change', (e) => {
+      Utils.setTeamColors(e.target.value);
+    });
+
+    TrainingTab.init();
+    PromoTab.init();
+  });
+  </script>
+</body>
+</html>
