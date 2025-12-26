@@ -118,9 +118,7 @@
   }
 
   .player-card.best-value .ovr-badge {
-    background: linear-gradient(135deg, var(--team-secondary), var(--team-accent, var(--team-secondary)));
-    color: var(--team-primary);
-    box-shadow: 0 0 15px rgba(var(--team-secondary-rgb), 0.6);
+    border-color: var(--team-secondary);
   }
 
   .ovr-badge {
@@ -231,7 +229,6 @@
     top: -2px;
     right: -2px;
     background: linear-gradient(135deg, var(--team-secondary), var(--team-accent, var(--team-secondary)));
-    color: var(--team-primary);
     padding: 0.4rem 0.6rem;
     font-weight: 800;
     font-size: 0.6rem;
@@ -278,6 +275,10 @@
     color: #888;
     font-style: italic;
     line-height: 1.2;
+  }
+
+  .promo-ovr-input {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
   }
 </style>
 </head>
@@ -637,7 +638,7 @@
     function recalculate() {
       const cpt = Utils.parseNumber(elements.cptInput.value);
       const ltd = parseInt(elements.ltdInput.value) || 0;
-      let maxCPT = 0;
+      let minCPT = Infinity;
       let bestCard = null;
 
       playerCards.forEach(card => {
@@ -662,8 +663,8 @@
         card.priceAtCpt.textContent = cpt ? Utils.formatNumber(Math.round(priceAtCPT)) : '-';
         card.targetPrice.textContent = Utils.formatNumber(Math.round(targetPrice));
 
-        if (cpt && coinPerTraining > maxCPT && !isDimmed) {
-          maxCPT = coinPerTraining;
+        if (cpt && coinPerTraining < minCPT && !isDimmed) {
+          minCPT = coinPerTraining;
           bestCard = card;
         }
       });
@@ -875,7 +876,7 @@
     }
 
     function recalculateAll() {
-      let maxCPC = 0;
+      let minCPC = Infinity;
       let bestCard = null;
 
       promoCards.forEach(cardObj => {
@@ -898,8 +899,8 @@
         cardObj.cpc.textContent = coinPerCurrency ? coinPerCurrency.toFixed(2) : '-';
         cardObj.target.textContent = Utils.formatNumber(Math.round(targetPrice));
 
-        if (qs && coinPerCurrency > maxCPC) {
-          maxCPC = coinPerCurrency;
+        if (qs && coinPerCurrency < minCPC) {
+          minCPC = coinPerCurrency;
           bestCard = cardObj;
         }
       });
