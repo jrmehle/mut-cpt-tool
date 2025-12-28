@@ -433,7 +433,7 @@
   };
 
   const TAX_RATE = 0.9;
-  const TAX_FLAT = 1000;
+  const MIN_PROFIT = 1000;
 
   const PLAYER_DATA = [
     { ovr: 80, training: 110, platinumQS: '14,000' },
@@ -656,7 +656,7 @@
 
         const coinPerTraining = avg / card.data.training;
         const priceAtCPT = card.data.training * cpt;
-        const targetPrice = (avg * TAX_RATE) - TAX_FLAT;
+        const targetPrice = (avg * TAX_RATE) - MIN_PROFIT;
 
         card.coinPerTraining.textContent = coinPerTraining.toFixed(1);
         card.priceAtCpt.textContent = cpt ? Utils.formatNumber(Math.round(priceAtCPT)) : '-';
@@ -892,7 +892,7 @@
 
         const coinAfterTax = avg * TAX_RATE;
         const coinPerCurrency = qs ? (avg / qs) : 0;
-        const targetPrice = coinAfterTax - TAX_FLAT;
+        const targetPrice = coinAfterTax - MIN_PROFIT;
 
         cardObj.coinAfter.textContent = Utils.formatNumber(Math.round(coinAfterTax));
         cardObj.cpc.textContent = coinPerCurrency ? coinPerCurrency.toFixed(2) : '-';
