@@ -136,6 +136,18 @@
     transition: all 0.3s ease;
   }
 
+    /* Chrome, Safari, Edge, Opera */
+  .ovr-badge input[type="number"]::-webkit-inner-spin-button,
+  .ovr-badge input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* Firefox */
+  .ovr-badge input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
   .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -225,7 +237,6 @@
     border-color: var(--team-primary-light, var(--team-primary)) !important;
     transition: all 0.3s ease;
   }
-
 
   .best-value-banner {
     position: absolute;
