@@ -123,8 +123,6 @@
     display: inline-block;
     background: linear-gradient(135deg, var(--team-primary), var(--team-primary-light, var(--team-primary)));
     color: var(--team-secondary);
-    font-size: 1.4rem;
-    font-weight: 900;
     padding: 0.25rem 0.75rem;
     border-radius: 8px;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
@@ -599,12 +597,12 @@
           <div class="best-value-banner" title="Best Value!">⭐</div>
           <div class="d-flex justify-content-between align-items-start">
             <div>
-              <div class="ovr-badge">${data.ovr}</div>
+              <div class="ovr-badge fw-bold fs-4">${data.ovr}</div>
               <div class="training-value">${Utils.formatNumber(data.training)} TP</div>
               ${platinumQSHtml}
             </div>
-            <div style="flex: 1; max-width: 120px; margin-left: 0.5rem; margin-top: -0.6rem;">
-              <label class="form-label" style="font-size: 0.6rem; margin-bottom: 0.25rem;">Avg Price</label>
+            <div class="ms-1" style="flex: 1; max-width: 120px; margin-top: -0.6rem;">
+              <label class="form-label mb-1" style="font-size: 0.6rem;">Avg Price</label>
               <input type="text" class="form-control input-field avg-price-input"
                      placeholder="Price" style="font-size: 0.75rem; padding: 0.25rem 0.4rem;">
             </div>
@@ -803,8 +801,8 @@
         <div class="d-flex justify-content-between align-items-start">
           <div>
             <div class="ovr-badge">
-              <input type="number" class="promo-ovr-input" placeholder="OVR"
-                     style="background: transparent; border: none; color: inherit; width: 55px; text-align: center; font-size: 1.4rem; font-weight: 900; padding: 0;">
+              <input type="number" class="promo-ovr-input text-center fw-bold fs-4" placeholder="OVR"
+                     style="background: transparent; border: none; color: inherit; width: 55px; padding: 0;">
             </div>
             <div class="training-value">
               <input type="text" class="form-control input-field promo-qs-input"
@@ -813,10 +811,10 @@
             <div class="platinum-qs currency-qs-label">${displayName} QS</div>
           </div>
           <div class="flex align-items-start" style="max-width: 120px; margin-left: 0.5rem; margin-top: -0.6rem;">
-            <label class="form-label" style="font-size: 0.6rem; margin-bottom: 0.25rem;">Avg Price</label>
+            <label class="form-label mb-1" style="font-size: 0.6rem;">Avg Price</label>
             <input type="text" class="form-control input-field promo-avg-input"
                    placeholder="Price" style="font-size: 0.75rem; padding: 0.25rem 0.4rem;">
-            <button class="btn btn-danger btn-sm mt-2 delete-promo" style="font-size: 0.65rem; padding: 0.2rem 0.5rem; width: 100%;">Remove</button>
+            <button class="btn btn-danger btn-sm mt-2 w-100 delete-promo" style="font-size: 0.65rem; padding: 0.2rem 0.5rem;">Remove</button>
           </div>
         </div>
         <div class="card-stats">
