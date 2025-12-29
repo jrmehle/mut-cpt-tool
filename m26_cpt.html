@@ -758,7 +758,7 @@
       promoCards.forEach(cardObj => {
         const label = cardObj.card.querySelector('.currency-qs-label');
         if (label) {
-          label.textContent = `${currencyName || 'Currency'} QS`;
+          label.textContent = `${currencyName || 'Promo Currency'} QS`;
         }
       });
     }
@@ -794,7 +794,7 @@
       const card = document.createElement('div');
       card.className = 'player-card';
 
-      const displayName = currencyName || 'Currency';
+      const displayName = currencyName || 'Promo Currency';
 
       card.innerHTML = `
         <div class="best-value-banner">⭐</div>
