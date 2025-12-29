@@ -409,7 +409,8 @@
     MUT_STATE: 'mutState',
     PROMO_DATA: 'promoData',
     PROMO_NAME: 'promoCurrencyName',
-    TEAM: 'selectedTeam'
+    TEAM: 'selectedTeam',
+    ACTIVE_TAB: 'activeTab'
   };
 
   const NFL_TEAMS = {
@@ -961,8 +962,39 @@
       Utils.setTeamColors(e.target.value);
     });
 
+    // Initialize tabs
     TrainingTab.init();
     PromoTab.init();
+
+    // -----------------------------
+    // Restore active tab on load
+    // -----------------------------
+    const savedTab = Utils.safeGetItem(STORAGE_KEYS.ACTIVE_TAB);
+
+    if (savedTab) {
+      const tabButton = document.querySelector(
+        `#mainTabs button[data-bs-target="${savedTab}"]`
+      );
+
+      if (tabButton) {
+        const tab = new bootstrap.Tab(tabButton);
+        tab.show();
+      }
+    }
+
+    // -----------------------------
+    // Persist tab changes
+    // -----------------------------
+    const tabButtons = document.querySelectorAll(
+      '#mainTabs button[data-bs-toggle="tab"]'
+    );
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('shown.bs.tab', (e) => {
+        const targetId = e.target.getAttribute('data-bs-target');
+        Utils.safeSetItem(STORAGE_KEYS.ACTIVE_TAB, targetId);
+      });
+    });
   });
   </script>
 </body>
