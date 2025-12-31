@@ -581,6 +581,8 @@
     }
 
     function handleReset() {
+      if (!confirm('Clear all C/T data?')) return;
+
       Utils.safeClearStorage();
       elements.cptInput.value = '';
       elements.ltdInput.value = '';
