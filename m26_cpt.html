@@ -246,9 +246,8 @@
 
   .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1rem;
   }
 
   .card-stats {
@@ -707,7 +706,7 @@
 
         const platinumQSHtml = data.platinumQS !== '-'
           ? `<div class="platinum-qs">Platinum QS: ${data.platinumQS}</div>`
-          : '';
+          : '<div style="height: 0.975rem;"></div>';
 
         card.innerHTML = `
           <div class="best-value-banner" title="Best Value!">⭐</div>
@@ -870,11 +869,16 @@
     function handleNameChange() {
       currencyName = elements.nameInput.value.trim();
       Utils.safeSetItem(STORAGE_KEYS.PROMO_NAME, currencyName);
-      // Update labels in existing cards
+      const displayName = currencyName || 'Promo Currency';
+
       promoCards.forEach(cardObj => {
-        const label = cardObj.card.querySelector('.currency-qs-label');
-        if (label) {
-          label.textContent = `${currencyName || 'Promo Currency'} QS`;
+        const qsLabel = cardObj.card.querySelector('.currency-qs-label');
+        const coinLabel = cardObj.card.querySelector('.currency-coin-label');
+        if (qsLabel) {
+          qsLabel.textContent = `${displayName} QS`;
+        }
+        if (coinLabel) {
+          coinLabel.textContent = `${displayName}/Coin`;
         }
       });
     }
@@ -883,6 +887,9 @@
       if (!await Utils.confirmDialog('Clear all promo data?')) return;
       promoCards = [];
       elements.container.innerHTML = '';
+      elements.nameInput.value = '';
+      currencyName = '';
+      Utils.safeSetItem(STORAGE_KEYS.PROMO_NAME, '');
       saveData();
       updateEmptyState();
     }
@@ -935,7 +942,7 @@
         </div>
         <div class="card-stats">
           <div class="stat-item">
-            <div class="stat-label text-center text-nowrap">C/Unit</div>
+            <div class="stat-label text-center currency-coin-label">${displayName}/Coin</div>
             <div class="stat-value promo-cpc text-center">-</div>
           </div>
           <div class="stat-item">
@@ -992,8 +999,9 @@
         });
       });
 
+      // remove button
       card.querySelector('.delete-promo').addEventListener('click', async () => {
-        if (!await Utils.confirmDialog(`Remove ${inputs.ovr.value} OVR?`)) return;
+        if (inputs.ovr.value != '' && !await Utils.confirmDialog(`Remove ${inputs.ovr.value} OVR?`)) return;
         card.remove();
         promoCards = promoCards.filter(c => c !== cardObj);
         recalculateAll();
@@ -1066,8 +1074,8 @@
   })();
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Load saved team or default to Vikings
-    const savedTeam = Utils.safeGetItem(STORAGE_KEYS.TEAM) || 'vikings';
+    // Load saved team
+    const savedTeam = Utils.safeGetItem(STORAGE_KEYS.TEAM);
     const teamSelect = document.getElementById('teamSelect');
     teamSelect.value = savedTeam;
     Utils.setTeamColors(savedTeam);
@@ -1081,9 +1089,7 @@
     TrainingTab.init();
     PromoTab.init();
 
-    // -----------------------------
     // Restore active tab on load
-    // -----------------------------
     const savedTab = Utils.safeGetItem(STORAGE_KEYS.ACTIVE_TAB);
 
     if (savedTab) {
@@ -1097,9 +1103,7 @@
       }
     }
 
-    // -----------------------------
     // Persist tab changes
-    // -----------------------------
     const tabButtons = document.querySelectorAll(
       '#mainTabs button[data-bs-toggle="tab"]'
     );
