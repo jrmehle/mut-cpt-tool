@@ -77,7 +77,6 @@
   }
 
   .dialog-buttons button[value="cancel"]:hover {
-    background: ;
     border-color: #444;
   }
 
@@ -91,6 +90,14 @@
     background: rgba(var(--team-primary-rgb), 0.6);
     border-color: #444;
     color: #888;
+  }
+
+  .fs-7 {
+    font-size: 0.7rem !important;
+  }
+
+  .fs-8 {
+    font-size: 0.6rem !important;
   }
 
   .team-selector {
@@ -246,38 +253,49 @@
 
   .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 1rem;
   }
 
   .card-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
+    gap: 0.25rem;
     margin-top: 0.25rem;
   }
 
   .stat-item {
     background: rgba(var(--team-primary-rgb), 0.5);
     border: 1px solid var(--team-primary-light);
-    border-radius: 8px;
-    padding: 0.35rem 0.4rem;
-    transition: all 0.3s ease;
+    border-radius: 6px;
+    padding: 0.5rem 0.25rem;
+    /* This is the key for horizontal alignment */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 42px; /* Ensures all boxes are the same height */
   }
 
   .stat-label {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     color: #aaa;
     text-transform: uppercase;
     letter-spacing: 0.3px;
+    line-height: 1.2;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 0.25rem;
   }
 
   .stat-value {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.7rem;
+    font-weight: 700;
     color: var(--team-secondary);
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-    line-height: 1rem;
+    text-align: center;
+    width: 100%;
+    white-space: nowrap;
   }
 
   .input-field {
@@ -353,7 +371,6 @@
   .training-value {
     font-size: 0.7rem;
     color: #aaa;
-    margin-top: 0.15rem;
   }
 
   .platinum-qs {
@@ -366,8 +383,32 @@
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
   }
 
+  #addPromoRow {
+    background: #c0c0c0;
+    border-color: var(--team-primary);
+  }
+
+  #addPromoRow:hover {
+    color: #333;
+    background: #888;
+  }
+
   #addPromoRow, .delete-promo {
     color: #000;
+  }
+
+  #resetBtn, #addPromoRow, #clearPromo, .delete-promo {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.75rem;
+    border-color: rgba(var(--team-primary-rgb), 0.7);
+  }
+
+  #addPromoRow:hover, #clearPromo:hover {
+    border-color: rgba(var(--team-primary-rgb), 0.9);
+  }
+
+  #resetBtn, #addPromoRow, #clearPromo, .delete-promo {
+    border-width: 2px;
   }
 
   #resetBtn:hover, #addPromoRow:hover, #clearPromo:hover, .delete-promo:hover {
@@ -434,7 +475,6 @@
 
     <div class="tab-content" id="mainTabsContent">
 
-      <!-- TRAINING TAB -->
       <div class="tab-pane fade show active" id="trainingPane" role="tabpanel">
         <div class="header-section">
           <div class="control-group">
@@ -455,7 +495,6 @@
         <div id="playerCards" class="cards-grid"></div>
       </div>
 
-      <!-- PROMO TAB -->
       <div class="tab-pane fade" id="promoPane" role="tabpanel">
         <div class="header-section">
           <div class="control-group">
@@ -464,8 +503,8 @@
               <input id="promoCurrencyName" type="text" class="form-control input-field"
                      placeholder="e.g., Tokens" style="width: 130px;">
             </div>
-            <button id="addPromoRow" class="btn btn-success py-1">Add OVR</button>
-            <button id="clearPromo" class="btn btn-warning py-1">Clear All</button>
+            <button id="addPromoRow" class="btn">Add OVR</button>
+            <button id="clearPromo" class="btn btn-warning">Clear All</button>
           </div>
         </div>
 
@@ -709,18 +748,19 @@
           : '<div style="height: 0.975rem;"></div>';
 
         card.innerHTML = `
-          <div class="best-value-banner" title="Best Value!">⭐</div>
+          <div class="best-value-banner" title="Best Value!">🔥</div>
           <div class="d-flex justify-content-between align-items-start">
-            <div>
+            <div class="col">
               <div class="ovr-badge fw-bold fs-4">${data.ovr}</div>
-              <div class="training-value">${Utils.formatNumber(data.training)} TP</div>
-              ${platinumQSHtml}
             </div>
-            <div style="flex: 1; max-width: 120px; margin-top: -0.6rem;">
-              <label class="form-label mb-1" style="font-size: 0.6rem;">Avg Price</label>
-              <input type="text" class="form-control input-field avg-price-input"
-                     placeholder="Price" style="font-size: 0.75rem; padding: 0.25rem 0.4rem;">
+            <div class="col" style="margin-top: -0.6rem;">
+              <label class="form-label mb-1 fs-8">Avg Price</label>
+              <input type="text" class="form-control input-field avg-price-input" placeholder="Price">
             </div>
+          </div>
+          <div class="mt-1">
+            <div class="training-value">${Utils.formatNumber(data.training)} TP</div>
+            ${platinumQSHtml}
           </div>
           <div class="card-stats">
             <div class="stat-item">
@@ -920,38 +960,42 @@
       const displayName = currencyName || 'Promo Currency';
 
       card.innerHTML = `
-        <div class="best-value-banner">⭐</div>
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
+        <div class="best-value-banner" title="Best Value!">🔥</div>
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div class="col">
             <div class="ovr-badge">
               <input type="number" class="promo-ovr-input text-center fw-bold fs-4" placeholder="OVR"
                      style="background: transparent; border: none; color: inherit; width: 32px; padding: 0;">
             </div>
+          </div>
+          <div class="col" style="margin-top: -0.6rem;">
+            <label class="form-label mb-1 fs-8">Avg Price</label>
+            <input type="text" class="form-control input-field promo-avg-input" placeholder="Price">
+          </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div class="col">
             <div class="training-value">
-              <input type="text" class="form-control input-field promo-qs-input"
-                     placeholder="QS Value" style="font-size: 0.7rem; padding: 0.25rem 0.4rem; width: 83px;">
+              <input type="text" class="form-control input-field promo-qs-input mt-1 px-0.5 py-1" placeholder="QS Value">
             </div>
             <div class="platinum-qs currency-qs-label">${displayName} QS</div>
           </div>
-          <div class="flex align-items-start" style="max-width: 120px; margin-left: 0.5rem; margin-top: -0.6rem;">
-            <label class="form-label mb-1" style="font-size: 0.6rem;">Avg Price</label>
-            <input type="text" class="form-control input-field promo-avg-input"
-                   placeholder="Price" style="font-size: 0.75rem; padding: 0.25rem 0.4rem;">
-            <button class="btn btn-danger btn-sm mt-2 w-100 delete-promo" style="font-size: 0.65rem; padding: 0.2rem 0.5rem;">Remove</button>
+          <div class="col">
+            <button class="btn btn-danger mt-1 w-100 delete-promo">Remove</button>
           </div>
         </div>
         <div class="card-stats">
           <div class="stat-item">
-            <div class="stat-label text-center currency-coin-label">${displayName}/Coin</div>
+            <div class="stat-label text-center currency-coin-label text-wrap">${displayName} / Coin</div>
             <div class="stat-value promo-cpc text-center">-</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label text-center text-nowrap">After Tax</div>
-            <div class="stat-value promo-coin-after text-center">-</div>
+            <div class="stat-label text-center">Target</div>
+            <div class="stat-value promo-target text-center">-</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label text-center text-nowrap">Target</div>
-            <div class="stat-value promo-target text-center">-</div>
+            <div class="stat-label text-center">Mkt Value</div>
+            <div class="stat-value promo-card-cost text-center">-</div>
           </div>
         </div>
       `;
@@ -987,9 +1031,9 @@
       const cardObj = {
         card: card,
         inputs: inputs,
-        coinAfter: card.querySelector('.promo-coin-after'),
         cpc: card.querySelector('.promo-cpc'),
-        target: card.querySelector('.promo-target')
+        target: card.querySelector('.promo-target'),
+        cardCost: card.querySelector('.promo-card-cost')
       };
 
       [inputs.ovr, inputs.qs, inputs.avg].forEach(input => {
@@ -1022,32 +1066,46 @@
         const qs = Utils.parseNumber(cardObj.inputs.qs.value);
         const avg = Utils.parseNumber(cardObj.inputs.avg.value);
 
-        if (!avg) {
-          cardObj.coinAfter.textContent = '-';
+        if (!avg || !qs) {
           cardObj.cpc.textContent = '-';
           cardObj.target.textContent = '-';
+          cardObj.cardCost.textContent = '-';
           cardObj.card.classList.remove('best-value');
           return;
         }
 
-        const coinAfterTax = avg * TAX_RATE;
-        const coinPerCurrency = qs ? (avg / qs) : 0;
-        const targetPrice = coinAfterTax - MIN_PROFIT;
+        const coinPerCurrency = avg / qs;
+        cardObj._tempRatio = coinPerCurrency; // Store for calculation
 
-        cardObj.coinAfter.textContent = Utils.formatNumber(Math.round(coinAfterTax));
-        cardObj.cpc.textContent = coinPerCurrency ? coinPerCurrency.toFixed(2) : '-';
-        cardObj.target.textContent = Utils.formatNumber(Math.round(targetPrice));
-
-        if (qs && coinPerCurrency < minCPC) {
+        if (coinPerCurrency < minCPC) {
           minCPC = coinPerCurrency;
           bestCard = cardObj;
         }
       });
 
-      // Remove all highlights
+      // Apply the best ratio to all cards to show the "Card Cost"
       promoCards.forEach(cardObj => {
+        const qs = Utils.parseNumber(cardObj.inputs.qs.value);
+        const avg = Utils.parseNumber(cardObj.inputs.avg.value);
+
         cardObj.card.classList.remove('best-value');
         cardObj.cpc.classList.remove('highlight');
+
+        if (!avg || !qs) return;
+
+        const coinAfterTax = avg * TAX_RATE;
+        const targetPrice = coinAfterTax - MIN_PROFIT;
+
+        cardObj.cpc.textContent = cardObj._tempRatio.toFixed(2);
+        cardObj.target.textContent = Utils.formatNumber(Math.round(targetPrice));
+
+        // Cost = How much currency THIS card is worth * THE BEST ratio found in the set
+        if (minCPC !== Infinity) {
+          const calculatedCost = qs * minCPC;
+          cardObj.cardCost.textContent = Utils.formatNumber(Math.round(calculatedCost));
+        } else {
+          cardObj.cardCost.textContent = '-';
+        }
       });
 
       // Highlight best value
